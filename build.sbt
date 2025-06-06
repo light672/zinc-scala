@@ -7,5 +7,6 @@ lazy val root = (project in file("."))
     name := "zinc-scala"
   )
 scalacOptions ++= Seq(
-  "-Xfatal-warnings"
+  "-Xfatal-warnings",
+  "-deprecation"
 )

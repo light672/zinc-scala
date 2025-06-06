@@ -4,12 +4,14 @@ import TokenType.*
 
 case class Token
 (
-  val start: Int,
-  val end: Int,
-  val ty: TokenType
+  start: Int,
+  end: Int,
+  ty: TokenType
 ):
-  override def toString: String = ty match
+  def toString(source: String): String = ty match
     case Semicolon => ";"
+    case Dot => "."
+    case Comma => ","
     case Plus => "+"
     case Minus => "-"
     case Star => "*"
@@ -20,8 +22,7 @@ case class Token
     case SlashEqual => "/="
     case Let => "let"
     case PlusEqual => "+="
-    case Integer(number) => number.toString
-    case Identifier(lexeme) => lexeme.toString
+    case Integer | Identifier => source.substring(start, end)
     case EOF => "EOF"
     case NA => "NA"
     case Pound => "#"
@@ -45,6 +46,15 @@ case class Token
     case MinusMinus => "--"
     case EqualEqual => "=="
     case Dollar => "$"
+    case Pipe => "|"
+    case PipePipe => "||"
+    case PipeEqual => "|="
+    case Amp => "&"
+    case AmpAmp => "&&"
+    case AmpEqual => "&="
+    case Tilda => "~"
+    case Caret => "^"
+    case CaretEqual => "^="
 
 object Token {
   def empty: Token = Token(0, 0, TokenType.NA)
@@ -52,17 +62,20 @@ object Token {
 
 enum TokenType:
   case
-  Semicolon,
+  Semicolon, Dot, Comma, Tilda,
   Plus, PlusEqual, PlusPlus,
   Minus, MinusEqual, MinusMinus,
   Star, StarEqual,
   Slash, SlashEqual,
   Percent, PercentEqual,
+  Caret, CaretEqual,
   Bang, BangEqual,
   Less, LessEqual,
   Greater, GreaterEqual,
   Underscore,
   Equal, EqualEqual,
+  Pipe, PipePipe, PipeEqual,
+  Amp, AmpAmp, AmpEqual,
   Pound,
   At,
   Dollar,
@@ -71,6 +84,5 @@ enum TokenType:
   LeftBracket, RightBracket,
 
   Let,
-  EOF, NA
-  case Integer(number: Int)
-  case Identifier(lexeme: CharSequence)
+  EOF, NA,
+  Integer, Identifier
