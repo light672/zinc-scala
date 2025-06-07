@@ -61,7 +61,18 @@ private[zinc] case class Token
     case GreaterGreater => ">>"
     case Greater3 => ">>>"
     case As => "as"
-
+    case Pub => "pub"
+    case Fn => "fn"
+    case Struct => "struct"
+    case Impl => "impl"
+    case Trait => "trait"
+    case Type => "type"
+    case Const => "const"
+    case Static => "static"
+    case Mut => "mut"
+    case True => "true"
+    case False => "false"
+ 
 private[zinc] object Token {
   def empty: Token = Token(0, 0, TokenType.NA)
 }
@@ -89,6 +100,6 @@ private[zinc] enum TokenType:
   LeftBrace, RightBrace,
   LeftBracket, RightBracket,
 
-  Let, As,
+  Let, As, Pub, Fn, Struct, Impl, Trait, Type, Const, Static, Mut,
   EOF, NA,
-  Integer, Identifier
+  Integer, Identifier, True, False

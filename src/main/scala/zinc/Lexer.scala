@@ -150,10 +150,23 @@ private[zinc] object Lexer:
       pos
 
   private def keyword(start: Int, end: Int, source: String): Token =
-    source.subSequence(start, end) match
-      case "let" => Token(start, end, Let)
-      case "as" => Token(start, end, As)
-      case _ => Token(start, end, Identifier)
+    val ty = source.subSequence(start, end) match
+      case "let" => Let
+      case "as" => As
+      case "pub" => Pub
+      case "fn" => Fn
+      case "struct" => Struct
+      case "impl" => Impl
+      case "trait" => Trait
+      case "type" => Type
+      case "const" => Const
+      case "static" => Static
+      case "mut" => Mut
+      case "true" => True
+      case "false" => False
+      case _ => Identifier
+      
+    Token(start, end, ty)
 
   @tailrec
   private def number(pos: Int, source: String): Int =
