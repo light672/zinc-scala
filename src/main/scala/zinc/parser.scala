@@ -108,6 +108,12 @@ private[zinc] object ParserOps:
 
     (pos, source, delimStack) => loop(parser, mapCondition, List.empty, pos, source, delimStack)
 
+  def peek(ty: TokenType): Parser[Token] = (pos, source, delimStack) =>
+    Lexer.lexToken(pos, source, delimStack) match
+      case Left(error) => Left(ParseError.Error(error))
+      case Right((token, _, _)) => token.ty match
+        case matched if matched == ty => Right(ParseSuccess(token, pos, delimStack))
+        case _ => Left(ParseError.NoMatch(CompilerError.UnexpectedToken(Seq(ty), token)))
 
   def token(ty: TokenType): Parser[Token] = (pos, source, delimStack) =>
     Lexer.lexToken(pos, source, delimStack) match
@@ -119,7 +125,7 @@ private[zinc] object ParserOps:
 
   def token(tys: TokenType*): Parser[Token] = (pos, source, delimStack) =>
     Lexer.lexToken(pos, source, delimStack) match
-      case Left(error) => Left(ParseError.Error(error))
+      case Left(error) => Left(ParseError.NoMatch(error))
       case Right((token, newPos, newDelimStack)) => token.ty match
         case matched if tys contains matched => Right(ParseSuccess(token, newPos, newDelimStack))
         case _ => Left(ParseError.NoMatch(CompilerError.UnexpectedToken(tys, token)))
