@@ -65,7 +65,7 @@ private[zinc] object AST:
   lazy val bitOr: Parser[Expr] = binary(xor, bitOr, Pipe)
   lazy val xor: Parser[Expr] = binary(bitAnd, xor, Caret)
   lazy val bitAnd: Parser[Expr] = binary(shift, bitAnd, Amp)
-  lazy val shift: Parser[Expr] = binary(range, shift, LessLess, GreaterGreater) // TODO: lex >>>
+  lazy val shift: Parser[Expr] = binary(range, shift, LessLess, GreaterGreater, Greater3)
 
   lazy val range: Parser[Expr] =
     val infixParser = for
