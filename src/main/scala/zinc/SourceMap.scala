@@ -2,13 +2,14 @@ package zinc
 
 import scala.annotation.tailrec
 
-opaque type SourceMap = Vector[Int]
+private[zinc] opaque type SourceMap = Vector[Int]
 
-object SourceMap:
+private[zinc] object SourceMap:
   def lineOffsets(source: String): SourceMap = source.zipWithIndex
     .collect { case ('\n', index) => index + 1 }
     .scanLeft(0)(_ max _)
     .toVector
+
   extension (self: SourceMap)
     def findLineIndex(sourceMap: SourceMap, pos: Int): Int =
       @tailrec

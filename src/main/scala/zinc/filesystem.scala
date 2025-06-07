@@ -6,7 +6,7 @@ import scala.jdk.CollectionConverters.*
 import scala.util.{Failure, Success, Using}
 
 
-case class ParsedFile(
+private[zinc] case class ParsedFile(
   path: String,
   ast: List[Stmt],
   sourceMap: SourceMap,
@@ -20,7 +20,7 @@ private def getAllFiles(dir: File): Array[File] =
 
 private type FileSystemParseResult = Either[CompilerError, (Vector[ParsedFile], List[CompilerError])]
 
-def create(rootDirPath: String): FileSystemParseResult =
+private[zinc] def create(rootDirPath: String): FileSystemParseResult =
 
   val directory = new File(rootDirPath)
   if !directory.isDirectory then

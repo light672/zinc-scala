@@ -7,19 +7,19 @@ import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
 
-enum ParseError:
+private[zinc] enum ParseError:
   case NoMatch(error: CompilerError)
   case Error(error: CompilerError)
 
-case class ParseSuccess[+T](
+private[zinc] case class ParseSuccess[+T](
   data: T,
   pos: Int,
   delimStack: List[Token]
 )
 
 
-type ParseResult[+T] = Either[ParseError, ParseSuccess[T]]
-type Parser[+T] = (Int, String, List[Token]) => ParseResult[T]
+private[zinc] type ParseResult[+T] = Either[ParseError, ParseSuccess[T]]
+private[zinc] type Parser[+T] = (Int, String, List[Token]) => ParseResult[T]
 
 
 extension [A](self: Parser[A])
@@ -62,7 +62,7 @@ extension [A](self: Parser[A])
       case other => other
 
 
-object ParserOps:
+private[zinc] object ParserOps:
 
   def loopIf[A, B](parser: Parser[A], mapCondition: A => Option[B]): Parser[List[B]] =
     @tailrec

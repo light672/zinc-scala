@@ -2,7 +2,7 @@ package zinc
 
 import TokenType.*
 
-case class Token
+private[zinc] case class Token
 (
   start: Int,
   end: Int,
@@ -56,11 +56,11 @@ case class Token
     case Caret => "^"
     case CaretEqual => "^="
 
-object Token {
+private[zinc] object Token {
   def empty: Token = Token(0, 0, TokenType.NA)
 }
 
-enum TokenType:
+private[zinc] enum TokenType:
   case
   Semicolon, Dot, Comma, Tilda,
   Plus, PlusEqual, PlusPlus,

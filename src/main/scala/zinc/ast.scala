@@ -3,7 +3,7 @@ package zinc
 import ParserOps.*
 import TokenType.*
 
-enum Expr:
+private[zinc] enum Expr:
   case Literal(token: Token)
   case Binary(left: Expr, right: Expr, operator: Token)
   case Call(callee: Expr, args: List[Expr])
@@ -13,35 +13,35 @@ enum Expr:
   case Unary(expr: Expr, operator: Token)
   case Block(statements: List[Stmt])
 
-enum Stmt:
+private[zinc] enum Stmt:
   case Expression(expr: Expr, semicolon: Option[Token])
   case Let(pattern: Pattern, ty: Option[Type], initializer: Option[Expr])
 
-enum Pattern:
+private[zinc] enum Pattern:
   case Identifier(token: Token)
   case MutIdentifier(token: Token)
 
-enum Type:
+private[zinc] enum Type:
   case Path(path: ComplexPath)
 
-enum ComplexPath:
+private[zinc] enum ComplexPath:
   case TypePath(body: List[ComplexSegment])
 
-case class ComplexSegment(
+private[zinc] case class ComplexSegment(
   identifier: Token,
   generics: Option[GenericArgs]
 )
 
-case class GenericArgs(
+private[zinc] case class GenericArgs(
   args: List[GenericArg]
 )
 
-enum GenericArg:
+private[zinc] enum GenericArg:
   case Simple(ty: Type)
   case Binding(identifier: Token, ty: Type)
 
 
-object AST:
+private[zinc] object AST:
   def binary(_left: => Parser[Expr], _right: => Parser[Expr], symbols: TokenType*) =
     lazy val left = _left
     lazy val right = _right
