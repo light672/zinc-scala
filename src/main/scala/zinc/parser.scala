@@ -40,9 +40,16 @@ extension [A](self: Parser[A])
   def ? : Parser[Option[A]] = (pos, source, delimStack) =>
     self(pos, source, delimStack) match
       case Left(ParseError.NoMatch(error)) => Right(ParseSuccess(None, pos, delimStack))
-      case Left(ParseError.Error(error)) => Left(ParseError.Error(error))
+      case Left(error@ParseError.Error(_)) => Left(error)
       case Right(ParseSuccess(data, pos, delimStack)) => Right(ParseSuccess(Some(data), pos, delimStack))
       
+  @targetName("optionalWithError")
+  def ?# : Parser[Either[CompilerError, A]] = (pos, source, delimStack) =>
+    self(pos, source, delimStack) match
+      case Left(ParseError.NoMatch(error)) => Right(ParseSuccess(Left(error), pos, delimStack))
+      case Left(error@ParseError.Error(_)) => Left(error)
+      case Right(ParseSuccess(data, pos, delimStack)) => Right(ParseSuccess(Right(data), pos, delimStack))
+
   @targetName("loop")
   def * : Parser[List[A]] = (pos, source, delimStack) =>
     @tailrec
