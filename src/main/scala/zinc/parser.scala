@@ -42,6 +42,23 @@ extension [A](self: Parser[A])
       case Left(ParseError.NoMatch(error)) => Right(ParseSuccess(None, pos, delimStack))
       case Left(ParseError.Error(error)) => Left(ParseError.Error(error))
       case Right(ParseSuccess(data, pos, delimStack)) => Right(ParseSuccess(Some(data), pos, delimStack))
+      
+  @targetName("loop")
+  def * : Parser[List[A]] = (pos, source, delimStack) =>
+    @tailrec
+    def loop(
+      parser: Parser[A],
+      acc: List[A],
+      pos: Int,
+      source: String,
+      delimStack: List[Token]
+    ): ParseResult[List[A]] =
+      parser(pos, source, delimStack) match
+        case Left(ParseError.NoMatch(_)) => Right(ParseSuccess(acc.reverse, pos, delimStack))
+        case Left(error@ParseError.Error(_)) => Left(error)
+        case Right(ParseSuccess(data, pos, delimStack)) => loop(parser, data :: acc, pos, source, delimStack)
+        
+    loop(self, List.empty, pos, source, delimStack)
 
 
 
@@ -129,20 +146,6 @@ private[zinc] object ParserOps:
     parser(0, source, List.empty)
 
   def parseFile(file: Int, source: String): (List[Stmt], List[CompilerError]) =
-    /*
-    def transformToInt(num: Token): Parser[Int] = (pos, source, delimStack) => Try(num.toString(source).toInt) match
-      case Failure(_) => Left(ParseError.Error(CompilerError.ErrorCompilingNumber(num)))
-      case Success(value) => Right(ParseSuccess(value, pos, delimStack))
-
-    val int = (for
-      neg <- Parser.token(Minus)
-      num <- Parser.token(Integer)
-      parsedNumber <- transformToInt(num)
-    yield -parsedNumber) | Parser.token(Integer).flatMap(transformToInt)
-
-    println(parse(int | commaGroup(LeftParen, RightParen, int), source))
-    */
-    
     parse(AST.expr, source) match
       case Left(ParseError.Error(err)) => (List.empty, List(err))
       case Left(ParseError.NoMatch(err)) => (List.empty, List(err))
