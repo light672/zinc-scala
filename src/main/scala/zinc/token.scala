@@ -11,6 +11,7 @@ private[zinc] case class Token
   def toString(source: String): String = ty match
     case Semicolon => ";"
     case Colon => ":"
+    case ColonColon => "::"
     case Dot => "."
     case DotDot => ".."
     case DotDotEqual => "..="
@@ -81,7 +82,7 @@ private[zinc] object Token {
 
 private[zinc] enum TokenType:
   case
-  Semicolon, Colon, Dot, DotDot, DotDotEqual, Comma, Tilda,
+  Semicolon, Colon, ColonColon, Dot, DotDot, DotDotEqual, Comma, Tilda,
   Plus, PlusEqual, PlusPlus,
   Minus, MinusEqual, MinusMinus, MinusArrow,
   Star, StarEqual,

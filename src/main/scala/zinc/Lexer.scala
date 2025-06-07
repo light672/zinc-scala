@@ -21,6 +21,8 @@ private[zinc] object Lexer:
         case '@' => Right((Token(start, start + 1, At), start + 1, delimStack))
         case '~' => Right((Token(start, start + 1, Tilda), start + 1, delimStack))
         case ';' => Right((Token(start, start + 1, Semicolon), start + 1, delimStack))
+        case ':' if onNext(start, char => char == ':', source) =>
+          Right((Token(start, start + 2, ColonColon), start + 2, delimStack))
         case ':' => Right((Token(start, start + 1, Colon), start + 1, delimStack))
         case '.' if onNext(start, char => char == '.', source) && onNext(start + 1, char => char == '=', source) =>
           Right((Token(start, start + 3, DotDotEqual), start + 3, delimStack))
