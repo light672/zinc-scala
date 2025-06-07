@@ -17,6 +17,13 @@ private[zinc] enum Expr:
 private[zinc] enum Stmt:
   case Expression(expr: Expr, semicolon: Option[Token])
   case Let(pattern: Pattern, ty: Option[Type], initializer: Option[Expr])
+  case Fn(pub: Option[Token], name: Token, params: List[FunctionParam], returnTy: Option[Type], block: Either[Token, Expr.Block])
+  case UnitStruct(pub: Option[Token], name: Token, semicolon: Token)
+
+
+private[zinc] enum FunctionParam:
+  case PatternParam(pattern: Pattern, ty: Type)
+  case SelfParam(self: Token, ty: Option[Type])
 
 private[zinc] enum Pattern:
   case Identifier(token: Token)
@@ -43,10 +50,101 @@ private[zinc] enum GenericArg:
 
 
 private[zinc] object AST:
+  lazy val stmt: Parser[Stmt] =
+    declaration | let | exprStmt
+
+  lazy val exprStmt: Parser[Stmt] = for
+    expr <- expr
+    semicolon <- (token(Semicolon).map(t => Some(t)) | peek(RightBrace).map(_ => None)).!
+  yield Stmt.Expression(expr, semicolon)
+
+  lazy val declaration: Parser[Stmt] =
+    fn |
+      struct
+  //impl |
+  //`trait` |
+  //typealias |
+  //const |
+  //static
+
+  lazy val let: Parser[Stmt] = for
+    let <- token(Let)
+    pattern <- pattern.!
+    ty <- (for
+      _ <- token(Colon)
+      ty <- ty.!
+    yield ty).?
+    init <- (for
+      _ <- token(Equal)
+      expr <- expr.!
+    yield expr).?
+    semicolon <- token(Semicolon).!
+  yield Stmt.Let(pattern, ty, init)
+
+  lazy val fn: Parser[Stmt] = for
+    pub <- token(Pub).?
+    fn <- token(Fn)
+    name <- token(Identifier).!
+    params <- commaGroup(LeftParen, RightParen, fnParam).map {
+      case (_, _, Left(single)) => List(single)
+      case (_, _, Right(list)) => list
+    }.!
+    returnTy <- (for
+      arrow <- token(MinusArrow)
+      ty <- ty.!
+    yield ty).?
+    block <- (token(Semicolon) <|> block).!
+  yield Stmt.Fn(pub, name, params, returnTy, block)
+
+
+  lazy val fnParam: Parser[FunctionParam] = for
+    pattern <- pattern
+    colon <- token(Colon).!
+    ty <- ty.!
+  yield FunctionParam.PatternParam(pattern, ty)
+
+  lazy val struct: Parser[Stmt] = for
+    pub <- token(Pub).?
+    struct <- token(Struct)
+    name <- token(Identifier).!
+    semicolon <- token(Semicolon).!
+  yield Stmt.UnitStruct(pub, name, semicolon)
+
+
+  lazy val impl: Parser[Stmt] =
+    ???
+
+  lazy val `trait`: Parser[Stmt] =
+    ???
+
+  lazy val typealias: Parser[Stmt] =
+    ???
+
+  lazy val const: Parser[Stmt] =
+    ???
+
+  lazy val static: Parser[Stmt] =
+    ???
+
+
+  lazy val ty: Parser[Type] = for
+    path <- typePath
+  yield Type.Path(path)
+
+  lazy val typePath: Parser[ComplexPath.TypePath] = for
+    initial <- typePathSeg
+    rest <- (for
+      _ <- token(ColonColon)
+      seg <- typePathSeg
+    yield seg).*
+  yield ComplexPath.TypePath(initial :: rest)
+  lazy val typePathSeg: Parser[ComplexSegment] = token(Identifier).map(t => ComplexSegment(t, None))
+
+  lazy val pattern: Parser[Pattern] = token(Identifier).map(t => Pattern.Identifier(t))
+
   def binary(_left: => Parser[Expr], _right: => Parser[Expr], symbols: TokenType*) =
     lazy val left = _left
     lazy val right = _right
-
     for
       leftExpr <- left
       infix <- (for
@@ -75,9 +173,11 @@ private[zinc] object AST:
 
     (for
       leftExpr <- term
-      (op, rightExpr) <- infixParser
-    yield Expr.Range(Some(leftExpr), rightExpr, op)) |
-      infixParser.map((op, rightExpr) => Expr.Range(None, rightExpr, op))
+      infix <- infixParser.?
+    yield infix match
+      case Some((op, rightExpr)) => Expr.Range(Some(leftExpr), rightExpr, op)
+      case None => leftExpr
+      ) | infixParser.map((op, rightExpr) => Expr.Range(None, rightExpr, op))
 
   lazy val term: Parser[Expr] = binary(factor, term, Plus, Minus)
   lazy val factor: Parser[Expr] = binary(cast, factor, Star, Slash, Percent)
@@ -113,6 +213,13 @@ private[zinc] object AST:
   yield group match
     case Left(expr) => Expr.Group(expr)
     case Right(fields) => Expr.Tuple(fields)
+
+  lazy val block: Parser[Expr.Block] = for
+    left <- token(LeftBrace)
+    stmts <- stmt.*
+    right <- token(RightBrace).!
+  yield Expr.Block(stmts)
+
 
   lazy val number: Parser[Expr] = for
     number <- token(Integer)

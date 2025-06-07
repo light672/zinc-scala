@@ -166,8 +166,8 @@ private[zinc] object ParserOps:
     parser(0, source, List.empty)
 
   def parseFile(file: Int, source: String): (List[Stmt], List[CompilerError]) =
-    parse(AST.expr, source) match
+    parse(AST.declaration.*, source) match
       case Left(ParseError.Error(err)) => (List.empty, List(err))
       case Left(ParseError.NoMatch(err)) => (List.empty, List(err))
-      case Right(ParseSuccess(data, _, _)) => (List(Stmt.Expression(data, None)), List.empty)
+      case Right(ParseSuccess(data, _, _)) => (data, List.empty)
 
