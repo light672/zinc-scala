@@ -28,6 +28,13 @@ extension [A](self: Parser[A])
     self(pos, source, delimStack) match
       case Left(ParseError.NoMatch(_)) => other(pos, source, delimStack)
       case other => other
+      
+  @targetName("either")
+  def <|>[B](other: Parser[B]): Parser[Either[A, B]] = (pos, source, delimStack) =>
+    self(pos, source, delimStack) match
+      case Left(ParseError.NoMatch(_)) => other.map(b => Right(b))(pos, source, delimStack)
+      case Left(error@ParseError.Error(_)) => Left(error)
+      case Right(ParseSuccess(data, pos, delimStack)) => Right(ParseSuccess(Left(data), pos, delimStack))
 
   @targetName("expect")
   def ! : Parser[A] = (pos, source, delimStack) =>
