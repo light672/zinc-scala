@@ -67,6 +67,8 @@ private[zinc] object Lexer:
         case '+' if onNext(start, char => char == '=', source) =>
           Right((Token(start, start + 2, PlusEqual), start + 2, delimStack))
         case '+' => Right((Token(start, start + 1, Plus), start + 1, delimStack))
+        case '-' if onNext(start, char => char == '>', source) =>
+          Right((Token(start, start + 2, MinusArrow), start + 2, delimStack))
         case '-' if onNext(start, char => char == '-', source) =>
           Right((Token(start, start + 2, MinusMinus), start + 2, delimStack))
         case '-' if onNext(start, char => char == '=', source) =>

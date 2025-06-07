@@ -39,6 +39,7 @@ private[zinc] case class Token
     case PercentEqual => "%="
     case Bang => "!"
     case BangEqual => "!="
+    case MinusArrow => "->"
     case Less => "<"
     case LessEqual => "<="
     case Greater => ">"
@@ -81,7 +82,7 @@ private[zinc] enum TokenType:
   case
   Semicolon, Dot, DotDot, DotDotEqual, Comma, Tilda,
   Plus, PlusEqual, PlusPlus,
-  Minus, MinusEqual, MinusMinus,
+  Minus, MinusEqual, MinusMinus, MinusArrow,
   Star, StarEqual,
   Slash, SlashEqual,
   Percent, PercentEqual,
