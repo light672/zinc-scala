@@ -11,6 +11,8 @@ private[zinc] case class Token
   def toString(source: String): String = ty match
     case Semicolon => ";"
     case Dot => "."
+    case DotDot => ".."
+    case DotDotEqual => "..="
     case Comma => ","
     case Plus => "+"
     case Minus => "-"
@@ -57,6 +59,7 @@ private[zinc] case class Token
     case CaretEqual => "^="
     case LessLess => "<<"
     case GreaterGreater => ">>"
+    case Greater3 => ">>>"
     case As => "as"
 
 private[zinc] object Token {
@@ -65,7 +68,7 @@ private[zinc] object Token {
 
 private[zinc] enum TokenType:
   case
-  Semicolon, Dot, Comma, Tilda,
+  Semicolon, Dot, DotDot, DotDotEqual, Comma, Tilda,
   Plus, PlusEqual, PlusPlus,
   Minus, MinusEqual, MinusMinus,
   Star, StarEqual,
@@ -74,7 +77,7 @@ private[zinc] enum TokenType:
   Caret, CaretEqual,
   Bang, BangEqual,
   Less, LessEqual, LessLess,
-  Greater, GreaterEqual, GreaterGreater,
+  Greater, GreaterEqual, GreaterGreater, Greater3,
   Underscore,
   Equal, EqualEqual,
   Pipe, PipePipe, PipeEqual,

@@ -21,6 +21,10 @@ private[zinc] object Lexer:
         case '@' => Right((Token(start, start + 1, At), start + 1, delimStack))
         case '~' => Right((Token(start, start + 1, Tilda), start + 1, delimStack))
         case ';' => Right((Token(start, start + 1, Semicolon), start + 1, delimStack))
+        case '.' if onNext(start, char => char == '.', source) && onNext(start + 1, char => char == '=', source) =>
+          Right((Token(start, start + 3, DotDotEqual), start + 3, delimStack))
+        case '.' if onNext(start, char => char == '.', source) =>
+          Right((Token(start, start + 2, DotDot), start + 2, delimStack))
         case '.' => Right((Token(start, start + 1, Dot), start + 1, delimStack))
         case ',' => Right((Token(start, start + 1, Comma), start + 1, delimStack))
         case '$' => Right((Token(start, start + 1, Dollar), start + 1, delimStack))
@@ -79,6 +83,8 @@ private[zinc] object Lexer:
         case '<' if onNext(start, char => char == '=', source) =>
           Right((Token(start, start + 2, LessEqual), start + 2, delimStack))
         case '<' => Right((Token(start, start + 1, Less), start + 1, delimStack))
+        case '>' if onNext(start, char => char == '>', source) && onNext(start + 1, char => char == '>', source) =>
+          Right((Token(start, start + 3, Greater3), start + 3, delimStack))
         case '>' if onNext(start, char => char == '>', source) =>
           Right((Token(start, start + 2, GreaterGreater), start + 2, delimStack))
         case '>' if onNext(start, char => char == '=', source) =>
