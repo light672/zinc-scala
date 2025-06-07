@@ -74,9 +74,13 @@ private[zinc] object Lexer:
         case '/' if onNext(start, char => char == '=', source) =>
           Right((Token(start, start + 2, SlashEqual), start + 2, delimStack))
         case '/' => Right((Token(start, start + 1, Slash), start + 1, delimStack))
+        case '<' if onNext(start, char => char == '<', source) =>
+          Right((Token(start, start + 2, LessLess), start + 2, delimStack))
         case '<' if onNext(start, char => char == '=', source) =>
           Right((Token(start, start + 2, LessEqual), start + 2, delimStack))
         case '<' => Right((Token(start, start + 1, Less), start + 1, delimStack))
+        case '>' if onNext(start, char => char == '>', source) =>
+          Right((Token(start, start + 2, GreaterGreater), start + 2, delimStack))
         case '>' if onNext(start, char => char == '=', source) =>
           Right((Token(start, start + 2, GreaterEqual), start + 2, delimStack))
         case '>' => Right((Token(start, start + 1, Greater), start + 1, delimStack))
@@ -142,6 +146,7 @@ private[zinc] object Lexer:
   private def keyword(start: Int, end: Int, source: String): Token =
     source.subSequence(start, end) match
       case "let" => Token(start, end, Let)
+      case "as" => Token(start, end, As)
       case _ => Token(start, end, Identifier)
 
   @tailrec
