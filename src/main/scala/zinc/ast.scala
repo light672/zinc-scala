@@ -6,6 +6,7 @@ import TokenType.*
 private[zinc] enum Expr:
   case Literal(token: Token)
   case Binary(left: Expr, right: Expr, operator: Token)
+  case Range(left: Option[Expr], right: Option[Expr], operator: Token)
   case Call(callee: Expr, args: List[Expr])
   case Index(callee: Expr, args: List[Expr])
   case Tuple(fields: List[Expr])
@@ -57,32 +58,31 @@ private[zinc] object AST:
       case None => leftExpr
 
   lazy val expr: Parser[Expr] = assignment
-
   lazy val assignment: Parser[Expr] = binary(or, assignment, Equal)
-
   lazy val or: Parser[Expr] = binary(and, or, PipePipe)
-
   lazy val and: Parser[Expr] = binary(comp, and, AmpAmp)
-
   lazy val comp: Parser[Expr] = binary(bitOr, comp, EqualEqual, BangEqual, Less, LessEqual, Greater, GreaterEqual)
-
   lazy val bitOr: Parser[Expr] = binary(xor, bitOr, Pipe)
-
   lazy val xor: Parser[Expr] = binary(bitAnd, xor, Caret)
+  lazy val bitAnd: Parser[Expr] = binary(shift, bitAnd, Amp)
+  lazy val shift: Parser[Expr] = binary(range, shift, LessLess, GreaterGreater) // TODO: lex >>>
 
-  lazy val bitAnd: Parser[Expr] = binary(term, bitAnd, Amp)
+  lazy val range: Parser[Expr] =
+    val infixParser = for
+      op <- token(DotDot, DotDotEqual)
+      r <- range.?
+    yield (op, r)
 
-  // lazy val shift: Parser[Expr] = binary(term, shift) // TODO: lex << >> >>>
+    (for
+      leftExpr <- term
+      (op, rightExpr) <- infixParser
+    yield Expr.Range(Some(leftExpr), rightExpr, op)) |
+      infixParser.map((op, rightExpr) => Expr.Range(None, rightExpr, op))
 
-  /*val range: Parser[Expr] = for
-    first <- term.?
-
-  yield first*/
   lazy val term: Parser[Expr] = binary(factor, term, Plus, Minus)
+  lazy val factor: Parser[Expr] = binary(cast, factor, Star, Slash, Percent)
 
-  lazy val factor: Parser[Expr] = binary(unary, factor, Star, Slash, Percent)
-
-  // val cast = binary(unary, cast, As)
+  lazy val cast: Parser[Expr] = binary(unary, cast, As)
   lazy val unary: Parser[Expr] = (for
     op <- token(Bang, Minus, Tilda)
     expr <- unary.!
