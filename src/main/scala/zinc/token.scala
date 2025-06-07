@@ -55,6 +55,9 @@ private[zinc] case class Token
     case Tilda => "~"
     case Caret => "^"
     case CaretEqual => "^="
+    case LessLess => "<<"
+    case GreaterGreater => ">>"
+    case As => "as"
 
 private[zinc] object Token {
   def empty: Token = Token(0, 0, TokenType.NA)
@@ -70,8 +73,8 @@ private[zinc] enum TokenType:
   Percent, PercentEqual,
   Caret, CaretEqual,
   Bang, BangEqual,
-  Less, LessEqual,
-  Greater, GreaterEqual,
+  Less, LessEqual, LessLess,
+  Greater, GreaterEqual, GreaterGreater,
   Underscore,
   Equal, EqualEqual,
   Pipe, PipePipe, PipeEqual,
@@ -83,6 +86,6 @@ private[zinc] enum TokenType:
   LeftBrace, RightBrace,
   LeftBracket, RightBracket,
 
-  Let,
+  Let, As,
   EOF, NA,
   Integer, Identifier
