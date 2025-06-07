@@ -10,6 +10,7 @@ private[zinc] case class Token
 ):
   def toString(source: String): String = ty match
     case Semicolon => ";"
+    case Colon => ":"
     case Dot => "."
     case DotDot => ".."
     case DotDotEqual => "..="
@@ -73,14 +74,14 @@ private[zinc] case class Token
     case Mut => "mut"
     case True => "true"
     case False => "false"
- 
+
 private[zinc] object Token {
   def empty: Token = Token(0, 0, TokenType.NA)
 }
 
 private[zinc] enum TokenType:
   case
-  Semicolon, Dot, DotDot, DotDotEqual, Comma, Tilda,
+  Semicolon, Colon, Dot, DotDot, DotDotEqual, Comma, Tilda,
   Plus, PlusEqual, PlusPlus,
   Minus, MinusEqual, MinusMinus, MinusArrow,
   Star, StarEqual,
