@@ -43,7 +43,7 @@ private[zinc] object Lexer:
             case None => Left(CompilerError.UnexpectedDelim(start))
 
         case '{' =>
-          val token = Token(start, start + 1, LeftParen)
+          val token = Token(start, start + 1, LeftBrace)
           Right((token, start + 1, token :: delimStack))
         case '}' =>
           delimStack.headOption match
@@ -53,7 +53,7 @@ private[zinc] object Lexer:
             case None => Left(CompilerError.UnexpectedDelim(start))
 
         case '[' =>
-          val token = Token(start, start + 1, LeftBrace)
+          val token = Token(start, start + 1, LeftBracket)
           Right((token, start + 1, token :: delimStack))
         case ']' =>
           delimStack.headOption match
